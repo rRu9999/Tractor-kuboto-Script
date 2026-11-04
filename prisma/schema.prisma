@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+enum PlanCategory {
+  DAILY
+  VIP
+}
+
+enum TransactionType {
+  RECHARGE
+  WITHDRAWAL
+  PROFIT
+  COMMISSION
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REJECTED
+}
+
+model User {
+  id String @id @default(cuid())
+  uid String @unique
+  mobile String @unique
+  name String @default("Kubota Investor")
+  passwordHash String
+  status UserStatus @default(ACTIVE)
+  walletBalance Decimal @default(0)
+  bonusBalance Decimal @default(0)
+  registrationIp String?
+  lastLoginIp String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bankAccount BankAccount?
+  investments Investment[]
+  transactions Transaction[]
+  adminLogs AdminLog[]
+  referredById String?
+  referredBy User? @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals User[] @relation("UserReferrals")
+  sessions Session[]
+  giftCodeClaims GiftCodeClaim[]
+}
+
+model Session {
+  id String @id @default(cuid())
+  tokenHash String @unique
+  userId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Plan {
+  id String @id @default(cuid())
+  name String
+  category PlanCategory
+  price Decimal
+  dailyFixed Decimal?
+  dailyPercent Decimal?
+  commissionPercent Decimal @default(0)
+  durationDays Int
+  totalReturn Decimal
+  imageUrl String?
+  isActive Boolean @default(true)
+  isLimited Boolean @default(false)
+  countdownEndsAt DateTime?
+  purchaseLimit Int @default(1)
+  investments Investment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Investment {
+  id String @id @default(cuid())
+  userId String
+  planId String
+  purchasePrice Decimal
+  dailyReturn Decimal
+  earned Decimal @default(0)
+  remainingDays Int
+  status String @default("ACTIVE")
+  purchasedAt DateTime @default(now())
+  completedAt DateTime?
+  user User @relation(fields: [userId], references: [id])
+  plan Plan @relation(fields: [planId], references: [id])
+}
+
+model Transaction {
+  id String @id @default(cuid())
+  orderId String @unique
+  userId String
+  type TransactionType
+  amount Decimal
+  fee Decimal @default(0)
+  status TransactionStatus @default(PENDING)
+  metadata Json?
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+}
+
+model BankAccount {
+  id String @id @default(cuid())
+  userId String @unique
+  holderName String
+  accountNumber String
+  ifscCode String
+  bankName String?
+  verified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  id String @id @default(cuid())
+  key String @unique
+  value Json
+  updatedAt DateTime @updatedAt
+}
+
+model AdminLog {
+  id String @id @default(cuid())
+  userId String?
+  action String
+  remark String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model GiftCode {
+  id String @id @default(cuid())
+  code String @unique
+  reward Decimal
+  maxClaims Int
+  claims Int @default(0)
+  expiresAt DateTime?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  claimsByUser GiftCodeClaim[]
+}
+
+model GiftCodeClaim {
+  id String @id @default(cuid())
+  giftCodeId String
+  userId String
+  claimedAt DateTime @default(now())
+  giftCode GiftCode @relation(fields: [giftCodeId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([giftCodeId, userId])
+}

@@ -1,0 +1,14 @@
+import { Headphones, LockKeyhole, Sparkles, WalletCards, ArrowRight, Tractor } from 'lucide-react'
+import { MobileShell, SectionCard } from '@/components/mobile-shell'
+
+const reasons = [[Headphones, '24/7 support'], [LockKeyhole, '100% secure'], [WalletCards, 'Daily payout'], [Sparkles, '25% referral']] as const
+
+export default function AboutPage() {
+  return <MobileShell title="About Kubota Invest"><div className="space-y-4">
+    <section className="overflow-hidden rounded-[2rem] bg-[#181d1d] text-white shadow-lg"><div className="relative h-40"><img src="/tractor-hero.png" alt="Kubota tractor in a field" className="h-full w-full object-cover opacity-45"/><div className="absolute inset-0 bg-gradient-to-t from-[#181d1d] via-[#181d1d]/60 to-transparent"/><div className="absolute bottom-5 left-5"><p className="text-[10px] font-bold uppercase tracking-[.22em] text-[#ff8a2b]">Our mission</p><h2 className="mt-2 text-2xl font-black">Growing together with agriculture.</h2></div></div><p className="px-5 pb-6 pt-3 text-sm leading-6 text-white/65">Kubota Invest connects everyday investors with simple, transparent agricultural machinery plans and daily income experiences.</p></section>
+    <section className="grid grid-cols-2 gap-3"><div className="overflow-hidden rounded-2xl bg-white shadow-sm"><img src="/about-crops.jpg" alt="Healthy crops growing in a field" className="h-28 w-full object-cover"/><p className="p-3 text-sm font-black text-slate-900">Smart agriculture</p></div><div className="overflow-hidden rounded-2xl bg-white shadow-sm"><img src="/about-farm.jpg" alt="Farmer working with a tractor in a field" className="h-28 w-full object-cover"/><p className="p-3 text-sm font-black text-slate-900">Real farm impact</p></div></section>
+    <SectionCard title="Why choose us"><div className="grid grid-cols-2 gap-3">{reasons.map(([Icon, label]) => <div key={label} className="rounded-2xl bg-slate-50 p-4"><Icon size={22} className="text-[#ef6b12]"/><p className="mt-3 text-sm font-black">{label}</p></div>)}</div></SectionCard>
+    <SectionCard title="How it works"><ol className="flex flex-col gap-4">{['Create your account', 'Choose an income plan', 'Track daily earnings', 'Withdraw securely'].map((step, index) => <li key={step} className="flex items-center gap-3 text-sm font-bold"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#ff7411] text-white">{index + 1}</span><span>{step}</span><ArrowRight size={16} className="ml-auto text-slate-300"/></li>)}</ol></SectionCard>
+    <div className="rounded-2xl bg-[#fff1e5] p-4"><div className="flex items-center gap-2 text-[#ef6b12]"><Tractor size={18}/><p className="text-sm font-black">Built around agriculture</p></div><p className="mt-2 text-sm leading-6 text-slate-600">We make agricultural investment plans easier to understand, track, and manage.</p></div>
+  </div></MobileShell>
+}

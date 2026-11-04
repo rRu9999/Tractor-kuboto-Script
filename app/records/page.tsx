@@ -1,0 +1,12 @@
+'use client'
+import { useEffect, useState } from 'react'
+import { MobileShell, SectionCard } from '@/components/mobile-shell'
+
+type Row = { id: string; orderId: string; type: string; amount: number; status: string; createdAt: string; metadata: { utr?: string; kind?: string; plan?: string } }
+export default function RecordsPage() {
+  const [filter, setFilter] = useState('ALL')
+  const [rows, setRows] = useState<Row[]>([])
+  const [loading, setLoading] = useState(true)
+  useEffect(() => { setLoading(true); fetch(`/api/transactions?type=${filter}`, { cache: 'no-store' }).then((r) => r.ok ? r.json() : []).then(setRows).catch(() => setRows([])).finally(() => setLoading(false)) }, [filter])
+  return <MobileShell title="Transaction Records"><div className="mb-4 grid grid-cols-3 rounded-xl bg-slate-200 p-1 text-xs font-bold">{['ALL', 'RECHARGE', 'WITHDRAW'].map((x) => <button key={x} onClick={() => setFilter(x)} className={filter === x ? 'rounded-lg bg-white py-3 text-[#ef6b12] shadow-sm' : 'py-3 text-slate-500'}>{x[0] + x.slice(1).toLowerCase()}</button>)}</div><SectionCard title="Recent activity">{loading ? <p className="p-4 text-sm text-slate-400">Loading records…</p> : rows.length === 0 ? <p className="p-4 text-sm text-slate-400">No transactions yet.</p> : <div className="flex flex-col gap-3">{rows.map((row) => { const isDeposit = row.type === 'RECHARGE'; const label = isDeposit && row.status === 'PENDING' && !row.metadata?.utr ? 'TO BE PAID' : row.status; const isCredit = isDeposit || row.type === 'PROFIT' || row.type === 'COMMISSION'; const title = isDeposit ? 'DEPOSIT' : row.metadata?.kind === 'REGISTRATION_BONUS' ? 'REGISTRATION BONUS' : row.metadata?.kind === 'EXISTING_MEMBER_BONUS' ? 'MEMBER BONUS' : row.metadata?.kind === 'INVESTMENT_PURCHASE' ? `ORDER · ${row.metadata.plan || ''}` : row.type; return <div key={row.id} className="flex items-center gap-3 rounded-xl bg-slate-50 p-3"><span className="grid size-9 place-items-center rounded-full bg-[#fff0e3] text-[10px] font-black text-[#ef6b12]">{row.type[0]}</span><div className="flex-1"><p className="text-xs font-black">{title}</p><p className="text-[10px] text-slate-400">{row.orderId} · {new Date(row.createdAt).toLocaleString('en-IN')}</p></div><div className="text-right"><p className={`text-sm font-black ${isCredit ? 'text-emerald-600' : 'text-slate-900'}`}>{isCredit ? '+' : '-'}₹{row.amount.toLocaleString('en-IN')}</p><p className="text-[9px] font-bold text-slate-400">{label}</p></div></div>})}</div>}</SectionCard></MobileShell>
+}

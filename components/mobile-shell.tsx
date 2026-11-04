@@ -1,0 +1,12 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Home, Tractor, Share2, UserRound, ArrowLeft } from 'lucide-react'
+
+export function MobileShell({ title, children, back = true, plainTitle = false }: { title: string; children: React.ReactNode; back?: boolean; plainTitle?: boolean }) {
+  return <main className="min-h-screen bg-[#e9edf0] text-slate-900"><div className="mx-auto min-h-screen max-w-md bg-[#f7f8fa] pb-24 shadow-2xl"><header className={`sticky top-0 z-10 flex items-center gap-3 px-5 py-4 text-white ${plainTitle ? 'bg-[#f47b14]' : 'bg-[#151719]'}`}><Link href={back ? '/' : '#'} aria-label="Back" className={back ? '' : 'invisible'}><ArrowLeft size={20}/></Link><h1 className="flex-1 text-center text-lg font-black">{title}</h1>{plainTitle ? <span className="w-5" /> : <span className="ml-auto flex items-center gap-1.5"><img src="/kubota-logo.jpg" alt="Kubota logo" className="h-7 w-7 rounded-md object-cover object-[50%_18%]" /><span className="text-[9px] font-bold uppercase tracking-[.12em] text-[#ff8a2b]">Kubota Invest</span></span>}</header><div className="px-4 py-5">{children}</div><nav className="fixed bottom-0 left-1/2 z-20 flex w-full max-w-md -translate-x-1/2 justify-around border-t border-slate-200 bg-white/95 px-2 py-2 backdrop-blur"><Nav href="/" icon={Home} label="HOME"/><Nav href="/plans" icon={Tractor} label="BUY"/><Nav href="/invite" icon={Share2} label="INVITE"/><Nav href="/account" icon={UserRound} label="ACCOUNT"/></nav></div></main>
+}
+function Nav({ href, icon: Icon, label }: { href: string; icon: typeof Home; label: string }) { const pathname = usePathname(); const active = href === '/' ? pathname === '/' : pathname.startsWith(href); return <Link href={href} aria-current={active ? 'page' : undefined} className={`flex flex-col items-center gap-1 px-3 py-1 ${active ? 'text-[#ef6b12]' : 'text-slate-400'}`}><Icon size={19} className={active ? 'fill-current' : ''}/><span className="text-[10px] font-bold">{label}</span>{active && <span className="size-1 rounded-full bg-[#ef6b12]"/>}</Link> }
+
+export function SectionCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) { return <section className="rounded-2xl border border-white/80 bg-white/75 p-4 shadow-sm backdrop-blur-md"><div className="mb-4 flex items-center justify-between"><h2 className="font-black">{title}</h2>{action}</div>{children}</section> }
