@@ -10,9 +10,12 @@ const groups = [
   { title: 'SETTINGS', items: [['Change Password', 'Update login password', '/account?password=1', LockKeyhole, ''], ['About Us', 'Platform information', '/about', FileText, ''], ['Customer Support', '24/7 assistance', 'https://wa.me/910000000000', Headphones, '']] },
 ] as const
 
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ payment?: string }> }) {
   const user = await getCurrentUser()
   if (!user) redirect('/login?next=/account')
+  const { payment } = await searchParams
+  const paymentOrder = payment ? await prisma.transaction.findFirst({ where: { orderId: payment, userId: user.id }, select: { status: true, amount: true } }) : null
+  const paymentMessage = paymentOrder?.status === 'SUCCESS' ? `Payment successful. ₹${Number(paymentOrder.amount).toLocaleString('en-IN')} added to your wallet.` : paymentOrder?.status === 'PENDING' ? 'Payment is still pending gateway confirmation. Your wallet will update automatically after confirmation.' : null
   const mobile = user.mobile.length >= 5 ? `+91 ${user.mobile.slice(0, 3)}*****${user.mobile.slice(-2)}` : `+91 ${user.mobile}`
   const supportSetting = await prisma.setting.findUnique({ where: { key: 'whatsapp' } })
   const supportUrl = typeof supportSetting?.value === 'string' && supportSetting.value ? supportSetting.value : 'https://wa.me/910000000000'
@@ -22,6 +25,7 @@ export default async function AccountPage() {
       <div className="absolute inset-0 bg-[url('/tractor-hero.png')] bg-cover bg-center opacity-80" /><div className="absolute inset-0 bg-gradient-to-b from-[#0b2517]/65 via-[#7c4217]/35 to-[#de8018]/90" />
       <div className="relative"><div className="flex justify-between text-sm font-bold"><span>My Account</span><span>↪</span></div><div className="mt-5 text-center"><div className="mx-auto grid size-16 place-items-center rounded-full border-4 border-white/80 bg-white text-3xl font-black text-[#f07a12]">K</div><h2 className="mt-2 text-lg font-black">Kubota Invest User</h2><p className="text-xs text-white/90">{mobile}</p><span className="mt-1 inline-block rounded-full bg-black/20 px-3 py-1 text-[10px] font-bold">UID: {user.uid}</span></div><div className="mt-5 grid grid-cols-3 gap-2"><GlassMetric value={`₹${Number(user.walletBalance).toLocaleString('en-IN')}.00`} label="BALANCE"/><GlassMetric value="₹0" label="DEPOSITED"/><GlassMetric value="₹0" label="WITHDRAWN"/></div></div>
     </section>
+    {paymentMessage && <div role="status" className={`mt-4 rounded-2xl p-4 text-sm font-bold ${paymentOrder?.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{paymentMessage}</div>}
     <div className="-mx-1 mt-4 grid grid-cols-2 gap-3 rounded-2xl border border-white/70 bg-white/80 p-3 text-center shadow-sm backdrop-blur-md"><SummaryMetric value="₹0" label="TOTAL RECHARGE" icon={<FacetedDiamond />} /><SummaryMetric value="₹0" label="TOTAL WITHDRAW" icon={<CalendarCheck size={19} strokeWidth={1.8}/>} /></div>
     {groupsWithSupport.map(group => <section key={group.title} className="mt-5"><p className="mb-2 px-1 text-[11px] font-bold tracking-widest text-slate-400">{group.title}</p><div className="overflow-hidden rounded-2xl border border-white/80 bg-white/75 shadow-sm backdrop-blur-md">{group.items.map(([label, sub, href, Icon]) => <a key={label} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined} className="flex items-center gap-3 border-b border-slate-100/80 px-4 py-3 last:border-0"><span className="grid size-8 place-items-center rounded-lg bg-[#fff3e3] text-[#ef7814]"><Icon size={16}/></span><span className="flex-1"><strong className="block text-sm font-bold">{label}</strong><small className="block text-[11px] text-slate-400">{sub}</small></span><ChevronRight size={16} className="text-slate-300"/></a>)}</div></section>)}
   </MobileShell>
