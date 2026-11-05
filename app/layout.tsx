@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { MotionEnhancer } from '@/components/motion-enhancer'
 
 export const metadata: Metadata = {
   title: 'Kubota Invest | Daily income plans',
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <MotionEnhancer />
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
