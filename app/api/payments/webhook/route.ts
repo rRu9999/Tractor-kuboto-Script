@@ -4,6 +4,10 @@ import { prisma } from '@/lib/prisma'
 function isSuccess(value: unknown) { return Number(value) === 10 || value === 'SUCCESS' || value === 'success' }
 function isFailed(value: unknown) { return Number(value) === 9 || value === 'FAILED' || value === 'failed' }
 
+export async function GET(request: Request) {
+  return NextResponse.redirect(new URL('/account', request.url))
+}
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({})) as Record<string, unknown>
   const providedSecret = String(body.secretKey || request.headers.get('x-secret-key') || '')

@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const existing = await prisma.transaction.findUnique({ where: { orderId }, select: { orderId: true, amount: true, status: true, metadata: true } })
   if (existing) return NextResponse.json({ orderId: existing.orderId, amount: Number(existing.amount), status: existing.status, paymentUrl: typeof existing.metadata === 'object' && existing.metadata ? (existing.metadata as { paymentUrl?: string }).paymentUrl : undefined })
   const callbackUrl = `${origin(request)}/api/payments/webhook`
-  const returnUrl = `${origin(request)}/recharge?payment=${encodeURIComponent(orderId)}`
+  const returnUrl = `${origin(request)}/account?payment=${encodeURIComponent(orderId)}`
   try {
     const gatewayResponse = await fetch(`${gatewayBase}/v1/payins/create`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ merchantKey: process.env.Key_2, secretKey: process.env.API_KEY_2, orderId, amount, currency: 'INR', callbackUrl, returnUrl, customer: { name: user.name, mobile: user.mobile }, name: user.name, email: `user${user.uid}@example.com`, phone: user.mobile, mobile: user.mobile, customerName: user.name, customerMobile: user.mobile }) })
     const gateway = await gatewayResponse.json().catch(() => null) as Record<string, unknown> | null
