@@ -177,6 +177,16 @@
   50% { box-shadow: 0 0 0 5px rgb(255 116 17 / .12); }
 }
 
+@keyframes ambient-drift {
+  0%, 100% { transform: translate3d(-3%, -2%, 0) scale(1); opacity: .42; }
+  50% { transform: translate3d(4%, 3%, 0) scale(1.08); opacity: .68; }
+}
+
+@keyframes soft-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
 @layer components {
   main > div > section,
   main > section,
@@ -251,6 +261,17 @@
 }
 
 @layer components {
+  .motion-ready body::before {
+    content: '';
+    position: fixed;
+    inset: -18%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(circle at 18% 12%, rgb(255 151 62 / .16), transparent 28%), radial-gradient(circle at 84% 72%, rgb(255 116 17 / .1), transparent 26%);
+    filter: blur(22px);
+    animation: ambient-drift 12s ease-in-out infinite;
+  }
+
   .motion-ready .motion-reveal {
     opacity: 0;
     filter: blur(4px);
