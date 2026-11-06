@@ -187,6 +187,11 @@
   50% { transform: translateY(-4px); }
 }
 
+@keyframes button-breathe {
+  0%, 100% { box-shadow: 0 8px 18px rgb(255 116 17 / .12); }
+  50% { box-shadow: 0 12px 26px rgb(255 116 17 / .22); }
+}
+
 @layer components {
   main > div > section,
   main > section,
@@ -318,9 +323,27 @@
     pointer-events: none;
   }
 
+  button.motion-interactive {
+    border-radius: .9rem;
+    box-shadow: 0 8px 18px rgb(255 116 17 / .12), inset 0 1px 0 rgb(255 255 255 / .28);
+    animation: button-breathe 3.8s ease-in-out infinite;
+  }
+
+  button.motion-interactive:hover {
+    transform: translate3d(0, -3px, 0) perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    box-shadow: 0 16px 30px rgb(255 116 17 / .24), 0 0 0 1px rgb(255 172 93 / .42), inset 0 1px 0 rgb(255 255 255 / .34);
+    filter: saturate(1.12) brightness(1.04);
+  }
+
+  button.motion-interactive:active { animation: none; }
+
   .motion-interactive:hover {
     transform: translate3d(0, -2px, 0) perspective(700px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
     box-shadow: 0 12px 28px rgb(15 23 42 / .12), 0 0 0 1px rgb(255 116 17 / .16);
+  }
+
+  button.motion-interactive:hover {
+    box-shadow: 0 16px 30px rgb(255 116 17 / .24), 0 0 0 1px rgb(255 172 93 / .42), inset 0 1px 0 rgb(255 255 255 / .34);
   }
 
   .motion-interactive:hover::before { opacity: 1; }
